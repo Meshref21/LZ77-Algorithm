@@ -76,8 +76,23 @@ if __name__ == "__main__":
 
     if choice == 1:
         test_string = input('Please Enter Your String: ')
-        compressed_data = lz77_compress(test_string)
+        search_window = int(input('Please Enter Search Buffer Size (e.g., 4000): '))
+        look_ahead_window = int(input('Please Enter Look-Ahead Window Size (e.g., 4000): '))
+        
+        compressed_data = lz77_compress(test_string, search_window, look_ahead_window)
         print(f"Compressed Tags: {compressed_data}")
+        
+        # Compression Ratio Calculation
+        if len(test_string) > 0:
+            # Assuming 1 character = 1 byte, and 1 tag = 3 bytes (position, length, character)
+            original_size = len(test_string)
+            compressed_size = len(compressed_data) * 3
+            compression_ratio = original_size / compressed_size
+            
+            print(f"\n--- Compression Statistics ---")
+            print(f"Original Size: {original_size} bytes")
+            print(f"Compressed Size: {compressed_size} bytes (assuming 3 bytes per tag)")
+            print(f"Compression Ratio: {compression_ratio:.2f}")
 
     else:
         num_tags = int(input('Please Enter The Number of Tags: '))
