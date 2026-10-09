@@ -3,6 +3,8 @@
 # Mohamed Khaled Anwar 20250906
 # Mohamed Mahmoud Kamal 20240526
 
+import math
+
 class Tag:
     def __init__(self, position: int, length: int, next_char: str):
         self.position = position
@@ -70,31 +72,67 @@ def lz77_decompress(tags: list[Tag]) -> str:
             
     return "".join(output_string)
 
+def print_compression_statistics(user_input_string, compressed_data):
+    if len(user_input_string) > 0:
+
+        original_size = len(user_input_string)
+
+        # Find the largest value in each numeric field
+        max_position = max(tag.position for tag in compressed_data)
+        max_length = max(tag.length for tag in compressed_data)
+
+        # Calculate the required bits for each field
+        position_bits = max(1, max_position.bit_length())
+        length_bits = max(1, max_length.bit_length())
+        character_bits = 8 
+
+        compressed_size = (position_bits + length_bits + character_bits) * len(compressed_data)
+        compression_ratio = original_size / compressed_size
+
+        print(f"\n--- Compression Statistics ---")
+        print(f"Original Size: {original_size * 8} bits")
+        print(f"Compressed Size: {compressed_size} bits")
+        print(f"Compression Ratio: {compression_ratio:.2f}")
+
+
+def print_decompression_statistics(tags, decompressed_string):
+    if len(tags) > 0:
+
+        max_position = max(tag.position for tag in tags)
+        max_length = max(tag.length for tag in tags)
+
+        # Calc the required bits for each
+        position_bits = max(1, max_position.bit_length())
+        length_bits = max(1, max_length.bit_length())
+        character_bits = 8
+
+        original_size = (position_bits + length_bits + character_bits) * len(tags)
+
+        # Calculate decompressed size
+        decompressed_size = len(decompressed_string) * 8
+
+        compression_ratio = original_size / decompressed_size
+
+        print(f"\n--- Decompression Statistics ---")
+        print(f"Original Size (Tags): {original_size} bits")
+        print(f"Decompressed Size: {decompressed_size} bits")
+        print(f"Compression Ratio: {compression_ratio:.2f}")
+
+
 if __name__ == "__main__":
 
     choice = int(input("1. Compress\n2. Decompress \n"))
 
-    if choice == 1:
-        test_string = input('Please Enter Your String: ')
+    if choice == 1: #compression
+        user_input_string = input('Please Enter Your String: ')
         search_window = int(input('Please Enter Search Buffer Size (e.g., 4000): '))
         look_ahead_window = int(input('Please Enter Look-Ahead Window Size (e.g., 4000): '))
         
-        compressed_data = lz77_compress(test_string, search_window, look_ahead_window)
+        compressed_data = lz77_compress(user_input_string, search_window, look_ahead_window)
         print(f"Compressed Tags: {compressed_data}")
-        
-        # Compression Ratio Calculation
-        if len(test_string) > 0:
-            # Assuming 1 character = 1 byte, and 1 tag = 3 bytes (position, length, character)
-            original_size = len(test_string)
-            compressed_size = len(compressed_data) * 3
-            compression_ratio = original_size / compressed_size
-            
-            print(f"\n--- Compression Statistics ---")
-            print(f"Original Size: {original_size} bytes")
-            print(f"Compressed Size: {compressed_size} bytes (assuming 3 bytes per tag)")
-            print(f"Compression Ratio: {compression_ratio:.2f}")
+        print_compression_statistics(user_input_string, compressed_data)
 
-    else:
+    else: #decompression
         num_tags = int(input('Please Enter The Number of Tags: '))
         tags = []
 
@@ -107,3 +145,4 @@ if __name__ == "__main__":
 
         decompressed_string = lz77_decompress(tags)
         print(f"Decompressed: {decompressed_string}")
+        print_decompression_statistics(tags, decompressed_string)
